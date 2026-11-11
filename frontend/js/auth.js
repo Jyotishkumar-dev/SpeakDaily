@@ -234,3 +234,4 @@ async function handleSignup(e) {
     btn.innerHTML = 'Create Account ✨';
   }
 }
+

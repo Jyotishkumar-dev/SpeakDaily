@@ -761,3 +761,4 @@ window.resetPracticeFlow = function() {
   resetRecordingUI();
   renderPractice();
 };
+

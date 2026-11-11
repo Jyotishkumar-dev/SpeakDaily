@@ -297,3 +297,4 @@ window.toggleSessionDetails = function(cardId) {
     el.classList.toggle('expanded');
   }
 };
+

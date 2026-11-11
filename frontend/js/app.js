@@ -243,3 +243,4 @@ window.addEventListener('hashchange', handleRoute);
 
 // Start
 initApp();
+
