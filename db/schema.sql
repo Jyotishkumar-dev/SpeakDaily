@@ -140,9 +140,9 @@ create policy "Service role can insert profiles"
 -- ---- daily_topics --------------------------------------------
 alter table public.daily_topics enable row level security;
 
-create policy "Authenticated users can read topics"
+create policy "Anyone can read active topics"
   on public.daily_topics for select
-  using (auth.role() = 'authenticated');
+  using (is_active = true);
 
 -- ---- practice_sessions ---------------------------------------
 alter table public.practice_sessions enable row level security;
@@ -161,6 +161,16 @@ alter table public.ai_feedback enable row level security;
 create policy "Users can read own feedback"
   on public.ai_feedback for select
   using (
+    exists (
+      select 1 from public.practice_sessions ps
+      where ps.id = ai_feedback.session_id
+        and ps.user_id = auth.uid()
+    )
+  );
+
+create policy "Users can insert feedback for own sessions"
+  on public.ai_feedback for insert
+  with check (
     exists (
       select 1 from public.practice_sessions ps
       where ps.id = ai_feedback.session_id
