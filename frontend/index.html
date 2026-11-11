@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SpeakDaily — Your AI-powered English speaking practice partner. Improve fluency, grammar, and confidence every day.">
+  <meta name="theme-color" content="#6C63FF">
+  <title>SpeakDaily — Speak Better English, Every Day 🎙️</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/animations.css">
+
+  <!-- Favicon (data-uri emoji) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎙️</text></svg>">
+</head>
+<body>
+
+  <!-- ========== Navigation ========== -->
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <a href="#landing" class="nav-logo">
+        <img src="assets/logo.svg" alt="SpeakDaily logo">
+        <span>SpeakDaily</span>
+      </a>
+
+      <div class="nav-links" id="navLinks">
+        <!-- Filled by JS based on auth state -->
+      </div>
+
+      <div class="nav-user" id="navUser">
+        <!-- Filled by JS -->
+      </div>
+
+      <button class="nav-mobile-toggle" id="mobileToggle" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ========== Toast Container ========== -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ========== Main Content ========== -->
+  <main id="appMain">
+
+    <!-- Landing Page -->
+    <section class="page-section" id="page-landing">
+      <div class="hero-section">
+        <div class="hero-content fade-in-up">
+          <div class="hero-emoji float">🎙️</div>
+          <h1 class="hero-title">
+            Speak Better English,<br><span class="highlight">Every Single Day</span>
+          </h1>
+          <p class="hero-subtitle">
+            Your personal AI-powered speaking partner. Practice real conversations,
+            get instant feedback, and build confidence — one session at a time.
+          </p>
+          <div class="hero-buttons">
+            <a href="#signup" class="btn btn-primary btn-lg">Get Started Free ✨</a>
+            <a href="#login" class="btn btn-outline btn-lg">Sign In</a>
+          </div>
+          <div class="hero-features">
+            <div class="hero-feature"><span class="emoji">🗣️</span> Voice Recording</div>
+            <div class="hero-feature"><span class="emoji">🤖</span> AI Feedback</div>
+            <div class="hero-feature"><span class="emoji">📈</span> Track Progress</div>
+            <div class="hero-feature"><span class="emoji">🔥</span> Daily Streaks</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Login Page -->
+    <section class="page-section" id="page-login">
+      <div class="auth-page">
+        <div class="auth-card glass-card-static fade-in-up" id="loginCard">
+          <!-- Rendered by auth.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Signup Page -->
+    <section class="page-section" id="page-signup">
+      <div class="auth-page">
+        <div class="auth-card glass-card-static fade-in-up" id="signupCard">
+          <!-- Rendered by auth.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Dashboard -->
+    <section class="page-section" id="page-dashboard">
+      <div class="dashboard-page container page-enter" id="dashboardContent">
+        <!-- Rendered by dashboard.js -->
+      </div>
+    </section>
+
+    <!-- Practice -->
+    <section class="page-section" id="page-practice">
+      <div class="practice-page container page-enter" id="practiceContent">
+        <!-- Rendered by practice.js -->
+      </div>
+    </section>
+
+    <!-- History -->
+    <section class="page-section" id="page-history">
+      <div class="history-page container page-enter" id="historyContent">
+        <!-- Rendered by history.js -->
+      </div>
+    </section>
+
+    <!-- Profile -->
+    <section class="page-section" id="page-profile">
+      <div class="profile-page container page-enter" id="profileContent">
+        <!-- Rendered by profile.js -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========== Footer ========== -->
+  <footer class="app-footer" id="appFooter">
+    <p>Designed &amp; Developed by <span class="footer-brand">Jyotish Verma</span> ❤️</p>
+    <div class="footer-links">
+      <a href="https://github.com/jyotishkumar" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://linkedin.com/in/jyotishkumar" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://twitter.com/jyotishkumar" target="_blank" rel="noopener">Twitter</a>
+    </div>
+  </footer>
+
+  <!-- ========== Scripts ========== -->
+  <script src="js/app.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/practice.js"></script>
+  <script src="js/history.js"></script>
+  <script src="js/profile.js"></script>
+
+</body>
+</html>
