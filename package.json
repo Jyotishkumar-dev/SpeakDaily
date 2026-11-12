@@ -1,0 +1,20 @@
+{
+  "name": "speakdaily",
+  "version": "1.0.0",
+  "description": "SpeakDaily - Your five-minute English practice partner",
+  "scripts": {
+    "start": "node start.js",
+    "dev": "node start.js",
+    "frontend": "node start.js",
+    "backend": "cd backend && node server.js"
+  },
+  "keywords": [
+    "english",
+    "practice",
+    "speaking",
+    "ai"
+  ],
+  "author": "Jyotish Verma",
+  "license": "ISC"
+}
+
