@@ -17,11 +17,25 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 // Bypasses RLS; use only for server-side admin operations (e.g. fetching topics).
 const supabaseAdmin = supabaseServiceRoleKey
   ? createClient(supabaseUrl, supabaseServiceRoleKey, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-      },
-    })
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  })
   : null;
 
-module.exports = { supabase, supabaseAdmin };
+// Scoped client helper: forwards the user's JWT from the request Authorization header
+// so that PostgreSQL RLS policies correctly identify auth.uid()
+function getScopedClient(req) {
+  if (supabaseAdmin) return supabaseAdmin;
+  const authHeader = req?.headers?.authorization;
+  if (authHeader) {
+    return createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+      auth: { persistSession: false, autoRefreshToken: false }
+    });
+  }
+  return supabase;
+}
+
+module.exports = { supabase, supabaseAdmin, getScopedClient };

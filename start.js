@@ -44,6 +44,12 @@ const server = http.createServer((req, res) => {
   fs.readFile(filePath, (err, content) => {
     if (err) {
       if (err.code === 'ENOENT') {
+        // If request has a file extension (.css, .js, .svg, etc.), return 404 instead of HTML
+        if (path.extname(reqPath)) {
+          res.writeHead(404, { 'Content-Type': 'text/plain' });
+          return res.end('404 Not Found');
+        }
+
         // Fallback to index.html for SPA client-side routing
         fs.readFile(path.join(FRONTEND_DIR, 'index.html'), (fallbackErr, fallbackContent) => {
           if (fallbackErr) {
@@ -68,16 +74,36 @@ const server = http.createServer((req, res) => {
   });
 });
 
-server.listen(PORT, () => {
-  const url = `http://localhost:${PORT}`;
-  console.log('\n======================================================');
-  console.log(`🎙️  SpeakDaily is live at: ${url}`);
-  console.log('======================================================');
-  console.log(`Press Ctrl + C to stop the server.\n`);
+  let currentPort = parseInt(process.env.PORT, 10) || 8000;
 
-  // Auto-open browser on macOS
-  if (process.platform === 'darwin') {
-    exec(`open ${url}`);
-  }
-});
+function startServer(port) {
+  server.removeAllListeners('error');
+  server.removeAllListeners('listening');
+
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.log(`ℹ️  Port ${port} is already in use. Trying port ${port + 1}...`);
+      startServer(port + 1);
+    } else {
+      console.error('Server error:', err);
+    }
+  });
+
+  server.once('listening', () => {
+    const url = `http://localhost:${port}`;
+    console.log('\n======================================================');
+    console.log(`🎙️  SpeakDaily is live at: ${url}`);
+    console.log('======================================================');
+    console.log(`Press Ctrl + C to stop the server.\n`);
+
+    // Auto-open browser on macOS
+    if (process.platform === 'darwin') {
+      exec(`open ${url}`);
+    }
+  });
+
+  server.listen(port);
+}
+
+startServer(currentPort);
 

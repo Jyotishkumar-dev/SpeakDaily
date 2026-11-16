@@ -1,5 +1,5 @@
 const express = require('express');
-const { supabase } = require('../config/supabase');
+const { supabase, getScopedClient } = require('../config/supabase');
 const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
@@ -299,8 +299,10 @@ router.post('/', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'session_id is required' });
     }
 
+    const client = getScopedClient(req);
+
     // Fetch the session and make sure it belongs to the user
-    const { data: session, error: sessionErr } = await supabase
+    const { data: session, error: sessionErr } = await client
       .from('practice_sessions')
       .select('*')
       .eq('id', session_id)
@@ -312,7 +314,7 @@ router.post('/', requireAuth, async (req, res) => {
     }
 
     // Check if feedback already exists
-    const { data: existing } = await supabase
+    const { data: existing } = await client
       .from('ai_feedback')
       .select('*')
       .eq('session_id', session_id)
@@ -326,7 +328,7 @@ router.post('/', requireAuth, async (req, res) => {
     const analysis = analyzeTranscript(session.transcript);
 
     // Save feedback to the database
-    const { data: feedback, error: insertErr } = await supabase
+    const { data: feedback, error: insertErr } = await client
       .from('ai_feedback')
       .insert({
         session_id,
@@ -357,8 +359,10 @@ router.get('/:sessionId', requireAuth, async (req, res) => {
   try {
     const { sessionId } = req.params;
 
+    const client = getScopedClient(req);
+
     // Verify the session belongs to the user
-    const { data: session, error: sessionErr } = await supabase
+    const { data: session, error: sessionErr } = await client
       .from('practice_sessions')
       .select('id')
       .eq('id', sessionId)
@@ -369,7 +373,7 @@ router.get('/:sessionId', requireAuth, async (req, res) => {
       return res.status(404).json({ error: 'Session not found' });
     }
 
-    const { data: feedback, error } = await supabase
+    const { data: feedback, error } = await client
       .from('ai_feedback')
       .select('*')
       .eq('session_id', sessionId)

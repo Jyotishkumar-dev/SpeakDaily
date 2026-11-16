@@ -55,28 +55,6 @@ function validatePassword(password) {
   return password.length >= 6;
 }
 
-function showFieldError(field, message) {
-  const errorEl = field.parentElement.querySelector('.form-error');
-  if (errorEl) {
-    errorEl.textContent = message;
-    errorEl.classList.add('visible');
-  }
-  field.classList.add('error');
-}
-
-function clearFieldError(field) {
-  const errorEl = field.parentElement.querySelector('.form-error');
-  if (errorEl) {
-    errorEl.classList.remove('visible');
-  }
-  field.classList.remove('error');
-}
-
-function clearAllErrors(form) {
-  form.querySelectorAll('.form-error').forEach(e => e.classList.remove('visible'));
-  form.querySelectorAll('.form-input').forEach(e => e.classList.remove('error'));
-}
-
 // ─── Render Login Page ───
 function renderLoginPage() {
   const card = document.getElementById('loginCard');

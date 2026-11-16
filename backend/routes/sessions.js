@@ -1,5 +1,5 @@
 const express = require('express');
-const { supabase } = require('../config/supabase');
+const { supabase, getScopedClient } = require('../config/supabase');
 const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
@@ -15,7 +15,8 @@ router.post('/', requireAuth, async (req, res) => {
         .json({ error: 'topic_id and transcript are required' });
     }
 
-    const { data: session, error } = await supabase
+    const client = getScopedClient(req);
+    const { data: session, error } = await client
       .from('practice_sessions')
       .insert({
         user_id: req.user.id,
@@ -41,7 +42,8 @@ router.post('/', requireAuth, async (req, res) => {
 // GET /api/sessions — List current user's practice sessions
 router.get('/', requireAuth, async (req, res) => {
   try {
-    const { data: sessions, error } = await supabase
+    const client = getScopedClient(req);
+    const { data: sessions, error } = await client
       .from('practice_sessions')
       .select('*, daily_topics(title, category, difficulty)')
       .eq('user_id', req.user.id)

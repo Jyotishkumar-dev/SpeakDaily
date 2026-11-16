@@ -109,7 +109,7 @@ async function fetchUserStats() {
       const scores = sessions
         .map(s => (Array.isArray(s.ai_feedback) ? s.ai_feedback[0]?.overall_score : s.ai_feedback?.overall_score))
         .filter(score => typeof score === 'number' && !isNaN(score));
-      
+
       if (scores.length > 0) {
         avgScore = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
       }
@@ -189,9 +189,9 @@ async function renderDashboard() {
     greetingEmoji = '☀️';
   }
 
-  const userDisplayName = AppState.user?.user_metadata?.full_name || 
-                          AppState.user?.email?.split('@')[0] || 
-                          'Speaker';
+  const userDisplayName = AppState.user?.user_metadata?.full_name ||
+    AppState.user?.email?.split('@')[0] ||
+    'Speaker';
 
   // Random quote
   const randomQuote = MOTIVATIONAL_QUOTES[Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)];
@@ -226,14 +226,14 @@ async function renderDashboard() {
     recentSessionsHtml = `
       <div class="activity-list">
         ${recentSessions.map(session => {
-          const feedback = Array.isArray(session.ai_feedback) ? session.ai_feedback[0] : session.ai_feedback;
-          const score = feedback?.overall_score ?? '--';
-          const scoreTier = typeof score === 'number' ? scoreClass(score) : 'medium';
-          const topicTitle = session.daily_topics?.title || 'Daily Speaking Practice';
-          const category = session.daily_topics?.category || 'General';
-          const durationMin = Math.max(1, Math.round((session.duration_seconds || 60) / 60));
+      const feedback = Array.isArray(session.ai_feedback) ? session.ai_feedback[0] : session.ai_feedback;
+      const score = feedback?.overall_score ?? '--';
+      const scoreTier = typeof score === 'number' ? scoreClass(score) : 'medium';
+      const topicTitle = session.daily_topics?.title || 'Daily Speaking Practice';
+      const category = session.daily_topics?.category || 'General';
+      const durationMin = Math.max(1, Math.round((session.duration_seconds || 60) / 60));
 
-          return `
+      return `
             <div class="activity-item">
               <div class="activity-score ${scoreTier}">
                 ${score}${typeof score === 'number' ? '%' : ''}
@@ -247,7 +247,7 @@ async function renderDashboard() {
               </div>
             </div>
           `;
-        }).join('')}
+    }).join('')}
       </div>
     `;
   }
@@ -317,21 +317,23 @@ async function renderDashboard() {
 }
 
 // ─── Helper: Start Topic and Navigate ───
-window.startPracticeTopic = function(topicId) {
+window.startPracticeTopic = function (topicId) {
   if (window.setActivePracticeTopic && currentTodayTopic) {
     window.setActivePracticeTopic(currentTodayTopic);
   }
   navigate('practice');
 };
 
-// ─── Simple HTML Escaper ───
-function escapeHtml(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
+  // ─── Simple HTML Escaper (Fallback) ───
+  if (typeof escapeHtml === 'undefined') {
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+  }
 

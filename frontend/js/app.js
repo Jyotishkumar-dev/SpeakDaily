@@ -5,7 +5,91 @@
 // ─── Supabase Client ───
 const SUPABASE_URL = 'https://jpbgvropizffgdffwgvt.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_RZqdWfJMc2Ohb24XKGDfnA_d91usQ9v';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let supabase;
+
+function createSafeMockSupabase() {
+  const emptyRes = async () => ({ data: null, error: null });
+
+  const queryBuilder = {
+    select: () => queryBuilder,
+    insert: () => queryBuilder,
+    update: () => queryBuilder,
+    upsert: () => queryBuilder,
+    delete: () => queryBuilder,
+    eq: () => queryBuilder,
+    neq: () => queryBuilder,
+    order: () => queryBuilder,
+    limit: () => queryBuilder,
+    single: emptyRes,
+    maybeSingle: emptyRes,
+    then: (resolve) => resolve({ data: [], error: null })
+  };
+
+  return {
+    auth: {
+      getSession: async () => ({ data: { session: null }, error: null }),
+      getUser: async () => ({ data: { user: null }, error: null }),
+      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => { } } } }),
+      signUp: async () => { throw new Error('Supabase client could not connect. Please check your internet connection.'); },
+      signInWithPassword: async () => { throw new Error('Supabase client could not connect. Please check your internet connection.'); },
+      signOut: async () => ({ error: null }),
+      updateUser: async () => ({ error: null }),
+    },
+    from: () => queryBuilder
+  };
+}
+
+if (window.supabase && typeof window.supabase.createClient === 'function') {
+  try {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  } catch (err) {
+    console.error('Supabase initialization error:', err);
+    supabase = createSafeMockSupabase();
+  }
+} else {
+  console.warn('Supabase JS library not loaded from CDN or offline. Operating in fallback mode.');
+  supabase = createSafeMockSupabase();
+}
+
+// ─── Utility: Global HTML Escaper ───
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+window.escapeHtml = escapeHtml;
+
+// ─── Form Helpers ───
+function showFieldError(field, message) {
+  const errorEl = field.parentElement?.querySelector('.form-error');
+  if (errorEl) {
+    errorEl.textContent = message;
+    errorEl.classList.add('visible');
+  }
+  field.classList.add('error');
+}
+window.showFieldError = showFieldError;
+
+function clearFieldError(field) {
+  const errorEl = field.parentElement?.querySelector('.form-error');
+  if (errorEl) {
+    errorEl.classList.remove('visible');
+  }
+  field.classList.remove('error');
+}
+window.clearFieldError = clearFieldError;
+
+function clearAllErrors(form) {
+  if (!form) return;
+  form.querySelectorAll('.form-error').forEach(e => e.classList.remove('visible'));
+  form.querySelectorAll('.form-input').forEach(e => e.classList.remove('error'));
+}
+window.clearAllErrors = clearAllErrors;
 
 // ─── App State ───
 const AppState = {
@@ -16,16 +100,16 @@ const AppState = {
 };
 
 // ─── DOM Refs ───
-const $navLinks  = document.getElementById('navLinks');
-const $navUser   = document.getElementById('navUser');
-const $main      = document.getElementById('appMain');
-const $footer    = document.getElementById('appFooter');
+const $navLinks = document.getElementById('navLinks');
+const $navUser = document.getElementById('navUser');
+const $main = document.getElementById('appMain');
+const $footer = document.getElementById('appFooter');
 const $mobileToggle = document.getElementById('mobileToggle');
 
 // Public pages (no auth required)
 const PUBLIC_PAGES = ['landing', 'login', 'signup'];
 // Pages requiring auth
-const AUTH_PAGES   = ['dashboard', 'practice', 'history', 'profile'];
+const AUTH_PAGES = ['dashboard', 'practice', 'history', 'profile'];
 
 // ─── Router ───
 function getHashRoute() {
@@ -76,12 +160,12 @@ function showPage(page) {
 
   // Render page content
   switch (page) {
-    case 'login':    renderLoginPage();    break;
-    case 'signup':   renderSignupPage();   break;
-    case 'dashboard': renderDashboard();   break;
-    case 'practice': renderPractice();     break;
-    case 'history':  renderHistory();      break;
-    case 'profile':  renderProfile();      break;
+    case 'login': renderLoginPage(); break;
+    case 'signup': renderSignupPage(); break;
+    case 'dashboard': renderDashboard(); break;
+    case 'practice': renderPractice(); break;
+    case 'history': renderHistory(); break;
+    case 'profile': renderProfile(); break;
   }
 
   updateNav();
@@ -176,8 +260,8 @@ function timeAgo(dateStr) {
   const date = new Date(dateStr);
   const diff = Math.floor((now - date) / 1000);
 
-  if (diff < 60)    return 'just now';
-  if (diff < 3600)  return Math.floor(diff / 60) + 'm ago';
+  if (diff < 60) return 'just now';
+  if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
   if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
   if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -199,8 +283,10 @@ function scoreClass(score) {
 
 // ─── Utility: Score color hex ───
 function scoreColor(score) {
-  if (score >= 75) return '#00B894';
-  if (score >= 50) return '#FDCB6E';
+  const num = typeof score === 'number' ? score : parseInt(score, 10);
+  if (isNaN(num)) return '#b2bec3';
+  if (num >= 75) return '#00B894';
+  if (num >= 50) return '#FDCB6E';
   return '#e17055';
 }
 
