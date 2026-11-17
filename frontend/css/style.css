@@ -422,6 +422,88 @@ p { margin-bottom: 0.5em; }
   font-size: 1.3rem;
 }
 
+.hero-badge-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(108,99,255,0.08);
+  border: 1px solid rgba(108,99,255,0.18);
+  color: var(--color-primary);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: var(--radius-full);
+}
+
+/* ---------- Guest Mode Banners ---------- */
+.guest-banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: linear-gradient(135deg, rgba(108,99,255,0.09), rgba(255,101,132,0.07));
+  border: 1px dashed rgba(108,99,255,0.35);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  margin-bottom: 24px;
+  backdrop-filter: blur(8px);
+}
+
+.guest-banner-icon {
+  font-size: 26px;
+  flex-shrink: 0;
+}
+
+.guest-banner-content {
+  font-size: 13.5px;
+  color: var(--color-dark);
+}
+
+.guest-banner-content strong {
+  display: block;
+  font-size: 14px;
+  color: var(--color-primary);
+  margin-bottom: 2px;
+}
+
+.guest-banner-content a {
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+.guest-save-banner {
+  background: linear-gradient(135deg, rgba(255,255,255,0.92), rgba(248,249,254,0.97));
+  border: 2px solid var(--color-primary);
+  box-shadow: 0 12px 36px rgba(108,99,255,0.18);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.guest-save-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 14px;
+  border-radius: var(--radius-full);
+  margin-bottom: 12px;
+}
+
+.mobile-only-link {
+  display: none;
+}
+
 /* Decorative blobs */
 .hero-section::before {
   content: '';
