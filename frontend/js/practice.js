@@ -668,6 +668,23 @@ function setupSpeechRecognition() {
         } catch (dbErr) {
           console.warn('DB save warning (running in client mode):', dbErr);
         }
+      } else {
+        // Guest mode: save locally so user doesn't lose their evaluation
+        try {
+          const guestSessions = JSON.parse(localStorage.getItem('speakdaily_guest_sessions') || '[]');
+          guestSessions.unshift({
+            id: 'guest-' + Date.now(),
+            created_at: new Date().toISOString(),
+            duration_seconds: sessionDuration,
+            transcript: transcript,
+            topic_title: activeTopic?.title || 'Daily Practice Session',
+            topic_category: activeTopic?.category || 'General',
+            feedback: feedback
+          });
+          localStorage.setItem('speakdaily_guest_sessions', JSON.stringify(guestSessions.slice(0, 5)));
+        } catch (storageErr) {
+          console.warn('Guest localStorage save error:', storageErr);
+        }
       }
 
       // 3. Render Feedback Results UI
@@ -792,6 +809,22 @@ function setupSpeechRecognition() {
         🎙️ Practice Another Topic
       </button>
     </div>
+
+    ${!AppState.user ? `
+      <div class="guest-save-banner mt-3 fade-in-up">
+        <div class="guest-save-badge">🔥 Save Your Score &amp; Streak</div>
+        <h3 style="font-size:1.35rem; margin-bottom:8px; color:var(--color-dark);">
+          Congratulations! You scored ${feedback.overall_score}% 🎉
+        </h3>
+        <p class="text-muted" style="font-size:14px; max-width:540px; margin:0 auto 16px auto;">
+          Create a free SpeakDaily account in 10 seconds to lock in this practice session, track your grammar improvements, and unlock daily personalized streaks.
+        </p>
+        <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+          <a href="#signup" class="btn btn-primary btn-lg pulse-glow">Create Free Account to Save ✨</a>
+          <button class="btn btn-outline btn-lg" onclick="resetPracticeFlow()">Try Another Topic 🎙️</button>
+        </div>
+      </div>
+    ` : ''}
   `;
 
     // Smooth scroll down to feedback

@@ -161,23 +161,23 @@ function showPage(page) {
   // Render page content safely
   try {
     switch (page) {
-      case 'login': 
-        if (typeof renderLoginPage === 'function') renderLoginPage(); 
+      case 'login':
+        if (typeof renderLoginPage === 'function') renderLoginPage();
         break;
-      case 'signup': 
-        if (typeof renderSignupPage === 'function') renderSignupPage(); 
+      case 'signup':
+        if (typeof renderSignupPage === 'function') renderSignupPage();
         break;
-      case 'dashboard': 
-        if (typeof renderDashboard === 'function') renderDashboard(); 
+      case 'dashboard':
+        if (typeof renderDashboard === 'function') renderDashboard();
         break;
-      case 'practice': 
-        if (typeof renderPractice === 'function') renderPractice(); 
+      case 'practice':
+        if (typeof renderPractice === 'function') renderPractice();
         break;
-      case 'history': 
-        if (typeof renderHistory === 'function') renderHistory(); 
+      case 'history':
+        if (typeof renderHistory === 'function') renderHistory();
         break;
-      case 'profile': 
-        if (typeof renderProfile === 'function') renderProfile(); 
+      case 'profile':
+        if (typeof renderProfile === 'function') renderProfile();
         break;
     }
   } catch (renderErr) {

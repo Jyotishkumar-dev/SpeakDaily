@@ -7,7 +7,26 @@ let currentFilterRange = 'all'; // 'all', '7days', '30days'
 
 // ─── Fetch All Sessions ───
 async function fetchSessions() {
-  if (!AppState.user) return [];
+  if (!AppState.user) {
+    try {
+      const raw = localStorage.getItem('speakdaily_guest_sessions');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        cachedSessions = parsed.map(g => ({
+          id: g.id,
+          created_at: g.created_at,
+          duration_seconds: g.duration_seconds,
+          transcript: g.transcript,
+          daily_topics: { title: g.topic_title, category: g.topic_category },
+          ai_feedback: g.feedback
+        }));
+        return cachedSessions;
+      }
+    } catch (e) {
+      console.warn('Guest history read error:', e);
+    }
+    return [];
+  }
 
   try {
     const { data, error } = await supabase
@@ -291,7 +310,7 @@ function renderSessionCards(sessions) {
 }
 
 // ─── Toggle Session Details Expand/Collapse ───
-window.toggleSessionDetails = function(cardId) {
+window.toggleSessionDetails = function (cardId) {
   const el = document.getElementById(cardId);
   if (el) {
     el.classList.toggle('expanded');
