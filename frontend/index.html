@@ -13,7 +13,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
 
   <!-- Supabase JS -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- Styles -->
   <link rel="stylesheet" href="css/style.css">
@@ -37,7 +37,8 @@
       </div>
 
       <div class="nav-user" id="navUser">
-        <!-- Filled by JS -->
+        <a href="#login" class="btn btn-ghost btn-sm">Sign In</a>
+        <a href="#signup" class="btn btn-primary btn-sm">Get Started</a>
       </div>
 
       <button class="nav-mobile-toggle" id="mobileToggle" aria-label="Toggle menu">
@@ -53,7 +54,7 @@
   <main id="appMain">
 
     <!-- Landing Page -->
-    <section class="page-section" id="page-landing">
+    <section class="page-section active" id="page-landing">
       <div class="hero-section">
         <div class="hero-content fade-in-up">
           <div class="hero-emoji float">🎙️</div>

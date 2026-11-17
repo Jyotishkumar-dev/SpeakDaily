@@ -61,8 +61,14 @@ body {
   color: var(--color-dark);
   background: var(--color-bg);
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+}
+
+#appMain {
+  flex: 1;
 }
 
 a {

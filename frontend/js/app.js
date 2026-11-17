@@ -158,14 +158,30 @@ function showPage(page) {
     }
   }
 
-  // Render page content
-  switch (page) {
-    case 'login': renderLoginPage(); break;
-    case 'signup': renderSignupPage(); break;
-    case 'dashboard': renderDashboard(); break;
-    case 'practice': renderPractice(); break;
-    case 'history': renderHistory(); break;
-    case 'profile': renderProfile(); break;
+  // Render page content safely
+  try {
+    switch (page) {
+      case 'login': 
+        if (typeof renderLoginPage === 'function') renderLoginPage(); 
+        break;
+      case 'signup': 
+        if (typeof renderSignupPage === 'function') renderSignupPage(); 
+        break;
+      case 'dashboard': 
+        if (typeof renderDashboard === 'function') renderDashboard(); 
+        break;
+      case 'practice': 
+        if (typeof renderPractice === 'function') renderPractice(); 
+        break;
+      case 'history': 
+        if (typeof renderHistory === 'function') renderHistory(); 
+        break;
+      case 'profile': 
+        if (typeof renderProfile === 'function') renderProfile(); 
+        break;
+    }
+  } catch (renderErr) {
+    console.error('Page render error for ' + page + ':', renderErr);
   }
 
   updateNav();
@@ -305,28 +321,48 @@ function skeletonLines(count = 3) {
 }
 
 // ─── Auth State Listener ───
-supabase.auth.onAuthStateChange((event, session) => {
-  AppState.session = session;
-  AppState.user = session?.user || null;
-  AppState.loading = false;
+try {
+  supabase.auth.onAuthStateChange((event, session) => {
+    AppState.session = session;
+    AppState.user = session?.user || null;
+    AppState.loading = false;
 
-  handleRoute();
-});
+    updateNav();
+    handleRoute();
+  });
+} catch (e) {
+  console.warn('onAuthStateChange listener error:', e);
+}
 
 // ─── Init ───
 async function initApp() {
-  // Check existing session
-  const { data: { session } } = await supabase.auth.getSession();
-  AppState.session = session;
-  AppState.user = session?.user || null;
-  AppState.loading = false;
-
+  // 1. Render immediate visual state first so user sees the page instantly (0ms delay)
   handleRoute();
+  updateNav();
+
+  // 2. Then check session in the background without blocking the UI
+  try {
+    const { data } = await supabase.auth.getSession();
+    if (data?.session) {
+      AppState.session = data.session;
+      AppState.user = data.session.user;
+      updateNav();
+      handleRoute();
+    }
+  } catch (err) {
+    console.warn('getSession check error:', err);
+  } finally {
+    AppState.loading = false;
+  }
 }
 
 // Listen for hash changes
 window.addEventListener('hashchange', handleRoute);
 
-// Start
-initApp();
+// Start when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
 
