@@ -106,10 +106,10 @@ const $main = document.getElementById('appMain');
 const $footer = document.getElementById('appFooter');
 const $mobileToggle = document.getElementById('mobileToggle');
 
-// Public pages (no auth required)
-const PUBLIC_PAGES = ['landing', 'login', 'signup'];
+// Public pages (no auth required — allows guest practice)
+const PUBLIC_PAGES = ['landing', 'login', 'signup', 'practice'];
 // Pages requiring auth
-const AUTH_PAGES = ['dashboard', 'practice', 'history', 'profile'];
+const AUTH_PAGES = ['dashboard', 'history', 'profile'];
 
 // ─── Router ───
 function getHashRoute() {
@@ -213,7 +213,12 @@ function updateNav() {
 
     document.getElementById('logoutBtn')?.addEventListener('click', handleSignOut);
   } else {
-    $navLinks.innerHTML = '';
+    $navLinks.innerHTML = `
+      <a href="#landing" class="${AppState.currentPage === 'landing' ? 'active' : ''}">Home</a>
+      <a href="#practice" class="${AppState.currentPage === 'practice' ? 'active' : ''}">🎙️ Practice</a>
+      <a href="#login" class="mobile-only-link">Sign In</a>
+      <a href="#signup" class="mobile-only-link">Create Account ✨</a>
+    `;
     $navUser.innerHTML = `
       <a href="#login" class="btn btn-ghost btn-sm">Sign In</a>
       <a href="#signup" class="btn btn-primary btn-sm">Get Started</a>

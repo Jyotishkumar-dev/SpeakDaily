@@ -41,7 +41,19 @@ async function renderPractice() {
     ? activeTopic.prompt_questions.map(q => `<li><span>💬</span> <div>${escapeHtml(q)}</div></li>`).join('')
     : `<li><span>💬</span> <div>Share your honest thoughts and speak continuously for at least 1-2 minutes.</div></li>`;
 
+  const guestBannerHtml = !AppState.user ? `
+    <div class="guest-banner fade-in-up">
+      <div class="guest-banner-icon">🚀</div>
+      <div class="guest-banner-content">
+        <strong>Instant Guest Practice Mode</strong>
+        <span>You are practicing live with zero setup! Speak and get immediate AI corrections. To save your daily streaks and record history, <a href="#signup">create a free account</a>.</span>
+      </div>
+    </div>
+  ` : '';
+
   container.innerHTML = `
+    ${guestBannerHtml}
+
     <!-- Topic Brief Card -->
     <div class="glass-card practice-topic-display fade-in-up">
       <div class="emoji">🎙️</div>
