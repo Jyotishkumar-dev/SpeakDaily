@@ -86,7 +86,19 @@ async function renderHistory() {
 
   const sessions = await fetchSessions();
 
+  const guestHistoryNotice = !AppState.user ? `
+    <div class="guest-banner fade-in-up mb-3">
+      <div class="guest-banner-icon">📱</div>
+      <div class="guest-banner-content">
+        <strong>Guest Device History</strong>
+        <span>Showing practice sessions recorded on this browser. To sync your history across all your devices, <a href="#signup">create a free account</a>.</span>
+      </div>
+    </div>
+  ` : '';
+
   container.innerHTML = `
+    ${guestHistoryNotice}
+
     <div class="section-header fade-in-up">
       <div>
         <h2>📜 Practice History</h2>
