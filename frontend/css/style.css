@@ -616,6 +616,148 @@ p { margin-bottom: 0.5em; }
   font-weight: 600;
 }
 
+/* Password Visibility Toggle */
+.input-password-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-password-wrap .form-input {
+  padding-right: 44px;
+}
+
+.btn-password-toggle {
+  position: absolute;
+  right: 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--color-dark-light);
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition);
+}
+
+.btn-password-toggle:hover {
+  color: var(--color-primary);
+  background: rgba(108, 99, 255, 0.08);
+}
+
+/* Password Strength Indicator */
+.password-strength-wrap {
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.password-strength-bars {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+  height: 4px;
+}
+
+.strength-bar {
+  flex: 1;
+  background: var(--color-border);
+  border-radius: 2px;
+  transition: background var(--transition);
+}
+
+.strength-label {
+  font-size: 11px;
+  font-weight: 600;
+  min-width: 65px;
+  text-align: right;
+  color: var(--color-dark-light);
+}
+
+/* Guest Migration Banner */
+.guest-sync-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: linear-gradient(135deg, rgba(108, 99, 255, 0.08) 0%, rgba(0, 184, 148, 0.08) 100%);
+  border: 1px dashed rgba(108, 99, 255, 0.4);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: var(--color-dark);
+  line-height: 1.45;
+  animation: pulse-glow 3s infinite ease-in-out;
+}
+
+.guest-sync-banner .banner-icon {
+  font-size: 1.35rem;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.guest-sync-banner strong {
+  color: var(--color-primary);
+}
+
+/* Demo Quick-Fill Chip */
+.demo-login-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--color-primary);
+  background: rgba(108, 99, 255, 0.08);
+  border: 1px solid rgba(108, 99, 255, 0.25);
+  border-radius: 20px;
+  padding: 5px 12px;
+  margin-bottom: 16px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all var(--transition);
+  user-select: none;
+}
+
+.demo-login-chip:hover {
+  background: rgba(108, 99, 255, 0.16);
+  border-color: var(--color-primary);
+  transform: translateY(-1px);
+}
+
+/* Forgot Password Sublink Row */
+.auth-sublink-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -6px;
+  margin-bottom: 16px;
+}
+
+.auth-sublink {
+  font-size: 12px;
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.auth-sublink:hover {
+  text-decoration: underline;
+}
+
+/* Auth Notice / Helper text */
+.auth-note {
+  font-size: 12px;
+  color: var(--color-dark-light);
+  margin-top: 12px;
+  text-align: center;
+  line-height: 1.4;
+}
+
 /* ---------- Dashboard ---------- */
 .dashboard-page {
   padding: 32px 0;

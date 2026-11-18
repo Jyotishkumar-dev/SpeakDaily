@@ -41,7 +41,8 @@ comment on table public.daily_topics is 'One topic per day for speaking practice
 create table public.practice_sessions (
   id               uuid primary key default gen_random_uuid(),
   user_id          uuid not null references public.profiles(id) on delete cascade,
-  topic_id         uuid not null references public.daily_topics(id) on delete cascade,
+  topic_id         uuid references public.daily_topics(id) on delete set null,
+  topic_title      text,
   audio_url        text,
   transcript       text,
   duration_seconds int,
@@ -130,6 +131,10 @@ create policy "Users can view their own profile"
 create policy "Users can update their own profile"
   on public.profiles for update
   using (auth.uid() = id)
+  with check (auth.uid() = id);
+
+create policy "Users can insert their own profile"
+  on public.profiles for insert
   with check (auth.uid() = id);
 
 -- Allow the trigger (security definer) to insert
