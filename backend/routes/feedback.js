@@ -105,6 +105,66 @@ const GRAMMAR_RULES = [
     message: 'Remove the redundant "that".',
     fix: (match) => match.replace(/that that/i, 'that'),
   },
+  {
+    name: 'i_am_having',
+    regex: /\b(I am having|she is having|he is having)\s+(a|an|two|three|\d+)?\s*(car|bike|doubt|question|laptop|house|mobile|phone|sister|brother|problem)\b/gi,
+    message: 'Use simple present tense ("have" or "has") for permanent possession or states, not present continuous ("am having").',
+    fix: (match) => match.replace(/is having|am having/i, match.toLowerCase().includes('she') || match.toLowerCase().includes('he') ? 'has' : 'have'),
+  },
+  {
+    name: 'cousin_brother_sister',
+    regex: /\b(cousin\s+(?:brother|sister|brothers|sisters))\b/gi,
+    message: 'In standard English, simply use "cousin" instead of "cousin brother" or "cousin sister".',
+    fix: (match) => match.toLowerCase().includes('brother') ? 'cousin (male relative)' : 'cousin (female relative)',
+  },
+  {
+    name: 'cope_up_with',
+    regex: /\b(cope\s+up\s+with)\b/gi,
+    message: 'The standard English idiom is "cope with", not "cope up with".',
+    fix: () => 'cope with',
+  },
+  {
+    name: 'out_of_station',
+    regex: /\b(out\s+of\s+station)\b/gi,
+    message: '"Out of station" is an Indian English colloquialism. Use "out of town" or "away".',
+    fix: () => 'out of town / away',
+  },
+  {
+    name: 'prepone',
+    regex: /\b(prepone|preponed|preponing)\b/gi,
+    message: '"Prepone" is unique to Indian English. In international English, prefer "reschedule earlier" or "move up".',
+    fix: (match) => match.toLowerCase().includes('ed') ? 'rescheduled earlier / moved up' : 'move up / reschedule earlier',
+  },
+  {
+    name: 'good_name',
+    regex: /\b(what\s+is\s+your\s+good\s+name|your\s+good\s+name)\b/gi,
+    message: 'Direct translation of "Aapka shubh naam". In natural English, simply say "What is your name?".',
+    fix: () => 'what is your name / your name',
+  },
+  {
+    name: 'give_exam',
+    regex: /\b(give\s+(?:an?\s+)?exam|giving\s+(?:an?\s+)?exam|gave\s+(?:an?\s+)?exam)\b/gi,
+    message: 'Students "take an exam" or "sit for an exam". Teachers or schools "give" or administer the exam.',
+    fix: (match) => match.replace(/give|giving|gave/i, match.toLowerCase().includes('ing') ? 'taking' : (match.toLowerCase().includes('gave') ? 'took' : 'take')),
+  },
+  {
+    name: 'since_duration',
+    regex: /\b((?:working|living|studying|waiting)\s+since\s+(\d+|two|three|four|five|several)\s+(?:years|months|days|hours))\b/gi,
+    message: 'Use "for" with durations of time ("for 2 years"), and "since" only with specific starting points ("since 2022").',
+    fix: (match) => match.replace('since', 'for'),
+  },
+  {
+    name: 'revert_back',
+    regex: /\b(revert\s+back)\b/gi,
+    message: '"Revert" already means return or go back. Saying "revert back" is redundant.',
+    fix: () => 'reply / get back',
+  },
+  {
+    name: 'passed_out_college',
+    regex: /\b(passed\s+out\s+from\s+college|pass\s+out\s+from\s+college)\b/gi,
+    message: '"Pass out" in standard English means to lose consciousness. Use "graduated from college".',
+    fix: () => 'graduated from college',
+  },
 ];
 
 /**
