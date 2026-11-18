@@ -338,10 +338,10 @@ async function startRecording() {
     }
 
     mediaRecorder.ondataavailable = (e) => {
-    if (e.data && e.data.size > 0) {
-      audioChunks.push(e.data);
-    }
-  };
+      if (e.data && e.data.size > 0) {
+        audioChunks.push(e.data);
+      }
+    };
 
     mediaRecorder.onstop = () => {
       const finalType = mediaRecorder.mimeType || chosenMime || 'audio/webm';
@@ -365,91 +365,91 @@ async function startRecording() {
         activeAudioStream = null;
       }
 
-    // Show review section
-    document.getElementById('reviewSection')?.classList.remove('hidden');
-    document.getElementById('recordStatusLabel').textContent = 'Recording completed! Listen and review below.';
+      // Show review section
+      document.getElementById('reviewSection')?.classList.remove('hidden');
+      document.getElementById('recordStatusLabel').textContent = 'Recording completed! Listen and review below.';
 
-    // Update mic status pill
+      // Update mic status pill
+      const micPill = document.getElementById('micStatusPill');
+      const micPillText = document.getElementById('micPillText');
+      if (micPill) micPill.classList.remove('recording');
+      if (micPillText) micPillText.textContent = 'Speech Captured! Review Below ✅';
+
+      const transcriptInput = document.getElementById('transcriptInput');
+      if (transcriptInput && recognizedTranscript.trim()) {
+        transcriptInput.value = recognizedTranscript.trim();
+      } else if (transcriptInput && !transcriptInput.value.trim()) {
+        transcriptInput.value = "Hello, today I want to share my thoughts on this topic. I think English speaking is very important for career and personal growth. I practice speaking daily to build my confidence.";
+      }
+
+      // Update word counter
+      if (transcriptInput) {
+        const words = transcriptInput.value.trim().split(/\s+/).filter(w => w.length > 0);
+        const countEl = document.getElementById('transcriptWordCount');
+        if (countEl) countEl.textContent = `${words.length} words`;
+      }
+    };
+
+    mediaRecorder.start(250);
+
+    // Live Web Speech Recognition (Optional progressive enhancement)
+    setupSpeechRecognition();
+
+    // UI Updates
+    const toggleBtn = document.getElementById('recordToggleBtn');
+    const icon = document.getElementById('recordIcon');
+    const statusLabel = document.getElementById('recordStatusLabel');
+    const micPill = document.getElementById('micStatusPill');
+    const micPillText = document.getElementById('micPillText');
+
+    toggleBtn.classList.add('recording');
+    icon.textContent = '⏹️';
+    statusLabel.textContent = 'Listening... Speak clearly. Tap to stop recording.';
+
+    if (micPill) micPill.classList.add('recording');
+    if (micPillText) micPillText.textContent = 'Listening & Recording Live 🔴';
+
+    // Start Timer
+    recordingSeconds = 0;
+    updateTimerDisplay();
+    clearInterval(recordingTimer);
+    recordingTimer = setInterval(() => {
+      recordingSeconds++;
+      updateTimerDisplay();
+
+      // Alert at 4:30 (270s)
+      if (recordingSeconds === 270) {
+        showToast('⏱️ 30 seconds left! Wrap up your thoughts smoothly.', 'warning');
+      }
+
+      if (recordingSeconds >= 300) { // 5 minutes max
+        stopRecording();
+        showToast('Maximum practice duration reached (5 mins) ⏱️', 'info');
+      }
+    }, 1000);
+
+    // Start Live Waveform Render Loop
+    drawLiveWaveform();
+
+    showToast('Microphone active! Speak naturally 🎙️', 'info');
+
+  } catch (err) {
+    console.error('Microphone access error:', err);
+    showToast('Microphone access unavailable or denied. You can still type your practice speech below.', 'warning');
+
     const micPill = document.getElementById('micStatusPill');
     const micPillText = document.getElementById('micPillText');
     if (micPill) micPill.classList.remove('recording');
-    if (micPillText) micPillText.textContent = 'Speech Captured! Review Below ✅';
+    if (micPillText) micPillText.textContent = 'Microphone Inactive • Type Speech Below ✍️';
 
+    // Enable manual review section anyway
+    document.getElementById('reviewSection')?.classList.remove('hidden');
     const transcriptInput = document.getElementById('transcriptInput');
-    if (transcriptInput && recognizedTranscript.trim()) {
-      transcriptInput.value = recognizedTranscript.trim();
-    } else if (transcriptInput && !transcriptInput.value.trim()) {
-      transcriptInput.value = "Hello, today I want to share my thoughts on this topic. I think English speaking is very important for career and personal growth. I practice speaking daily to build my confidence.";
+    if (transcriptInput && !transcriptInput.value.trim()) {
+      transcriptInput.value = "In my opinion, learning English every day helps improve vocabulary and fluency. When I speak with colleagues, I try to express ideas clearly.";
     }
-
-    // Update word counter
-    if (transcriptInput) {
-      const words = transcriptInput.value.trim().split(/\s+/).filter(w => w.length > 0);
-      const countEl = document.getElementById('transcriptWordCount');
-      if (countEl) countEl.textContent = `${words.length} words`;
-    }
-  };
-
-  mediaRecorder.start(250);
-
-  // Live Web Speech Recognition (Optional progressive enhancement)
-  setupSpeechRecognition();
-
-  // UI Updates
-  const toggleBtn = document.getElementById('recordToggleBtn');
-  const icon = document.getElementById('recordIcon');
-  const statusLabel = document.getElementById('recordStatusLabel');
-  const micPill = document.getElementById('micStatusPill');
-  const micPillText = document.getElementById('micPillText');
-
-  toggleBtn.classList.add('recording');
-  icon.textContent = '⏹️';
-  statusLabel.textContent = 'Listening... Speak clearly. Tap to stop recording.';
-
-  if (micPill) micPill.classList.add('recording');
-  if (micPillText) micPillText.textContent = 'Listening & Recording Live 🔴';
-
-  // Start Timer
-  recordingSeconds = 0;
-  updateTimerDisplay();
-  clearInterval(recordingTimer);
-  recordingTimer = setInterval(() => {
-    recordingSeconds++;
-    updateTimerDisplay();
-
-    // Alert at 4:30 (270s)
-    if (recordingSeconds === 270) {
-      showToast('⏱️ 30 seconds left! Wrap up your thoughts smoothly.', 'warning');
-    }
-
-    if (recordingSeconds >= 300) { // 5 minutes max
-      stopRecording();
-      showToast('Maximum practice duration reached (5 mins) ⏱️', 'info');
-    }
-  }, 1000);
-
-  // Start Live Waveform Render Loop
-  drawLiveWaveform();
-
-  showToast('Microphone active! Speak naturally 🎙️', 'info');
-
-} catch (err) {
-  console.error('Microphone access error:', err);
-  showToast('Microphone access unavailable or denied. You can still type your practice speech below.', 'warning');
-
-  const micPill = document.getElementById('micStatusPill');
-  const micPillText = document.getElementById('micPillText');
-  if (micPill) micPill.classList.remove('recording');
-  if (micPillText) micPillText.textContent = 'Microphone Inactive • Type Speech Below ✍️';
-
-  // Enable manual review section anyway
-  document.getElementById('reviewSection')?.classList.remove('hidden');
-  const transcriptInput = document.getElementById('transcriptInput');
-  if (transcriptInput && !transcriptInput.value.trim()) {
-    transcriptInput.value = "In my opinion, learning English every day helps improve vocabulary and fluency. When I speak with colleagues, I try to express ideas clearly.";
   }
 }
-  }
 
 // ─── Setup Web Speech Recognition ───
 function setupSpeechRecognition() {
@@ -911,17 +911,33 @@ async function handleSubmitPractice() {
     // 2. Save session to Supabase if authenticated
     if (AppState.user) {
       try {
-        const { data: sessionData, error: sessError } = await supabase
+        const isUuid = (val) => typeof val === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(val);
+        const sessionPayload = {
+          user_id: AppState.user.id,
+          topic_id: isUuid(topicId) ? topicId : null,
+          topic_title: activeTopic?.title || 'Daily Practice Session',
+          transcript: transcript,
+          duration_seconds: sessionDuration,
+          audio_url: null
+        };
+
+        let { data: sessionData, error: sessError } = await supabase
           .from('practice_sessions')
-          .insert({
-            user_id: AppState.user.id,
-            topic_id: (topicId && !topicId.startsWith('default-')) ? topicId : null,
-            transcript: transcript,
-            duration_seconds: sessionDuration,
-            audio_url: null
-          })
+          .insert(sessionPayload)
           .select('id')
           .single();
+
+        // If topic_title is rejected by unmigrated DB, retry without topic_title
+        if (sessError && sessError.message && sessError.message.includes('topic_title')) {
+          delete sessionPayload.topic_title;
+          const retryRes = await supabase
+            .from('practice_sessions')
+            .insert(sessionPayload)
+            .select('id')
+            .single();
+          sessionData = retryRes.data;
+          sessError = retryRes.error;
+        }
 
         if (sessError) {
           console.warn('Session insert error:', sessError);
@@ -1050,11 +1066,11 @@ function showFeedbackResults(feedback) {
   }
 
   // SVG Circular Meter generator
-    const makeCircle = (label, score, color, desc) => {
-      const radius = 32;
-      const circ = 2 * Math.PI * radius; // ~201
-      const offset = circ - (score / 100) * circ;
-      return `
+  const makeCircle = (label, score, color, desc) => {
+    const radius = 32;
+    const circ = 2 * Math.PI * radius; // ~201
+    const offset = circ - (score / 100) * circ;
+    return `
       <div class="glass-card score-card">
         <div class="score-circle-wrap">
           <svg viewBox="0 0 80 80">
@@ -1070,9 +1086,9 @@ function showFeedbackResults(feedback) {
         <div class="score-desc">${escapeHtml(desc)}</div>
       </div>
     `;
-    };
+  };
 
-    container.innerHTML = `
+  container.innerHTML = `
     <div class="text-center mb-3">
       <h2>🎉 Session Feedback</h2>
       <p class="text-muted">Here is how you performed on this practice session:</p>
@@ -1125,14 +1141,14 @@ function showFeedbackResults(feedback) {
     ` : ''}
   `;
 
-    // Smooth scroll down to feedback
-    container.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  // Smooth scroll down to feedback
+  container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
 
-  // ─── Reset Full Practice Flow ───
-  window.resetPracticeFlow = function () {
-    activeTopic = null;
-    resetRecordingUI();
-    renderPractice();
-  };
+// ─── Reset Full Practice Flow ───
+window.resetPracticeFlow = function () {
+  activeTopic = null;
+  resetRecordingUI();
+  renderPractice();
+};
 

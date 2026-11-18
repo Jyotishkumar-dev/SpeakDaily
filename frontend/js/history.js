@@ -29,13 +29,10 @@ async function fetchSessions() {
   }
 
   try {
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('practice_sessions')
       .select(`
-        id,
-        duration_seconds,
-        transcript,
-        created_at,
+        *,
         daily_topics (
           id,
           title,
@@ -56,7 +53,15 @@ async function fetchSessions() {
       .eq('user_id', AppState.user.id)
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      console.warn('History query with relation failed, falling back to simple select:', error);
+      const fallback = await supabase
+        .from('practice_sessions')
+        .select('*')
+        .eq('user_id', AppState.user.id)
+        .order('created_at', { ascending: false });
+      data = fallback.data || [];
+    }
     cachedSessions = data || [];
     return cachedSessions;
   } catch (err) {
@@ -149,8 +154,8 @@ function filterSessions(sessions, range, searchKeyword) {
   if (searchKeyword && searchKeyword.trim()) {
     const q = searchKeyword.toLowerCase().trim();
     filtered = filtered.filter(s => {
-      const title = s.daily_topics?.title?.toLowerCase() || '';
-      const cat = s.daily_topics?.category?.toLowerCase() || '';
+      const title = (s.topic_title || s.daily_topics?.title || '').toLowerCase();
+      const cat = (s.topic_category || s.daily_topics?.category || '').toLowerCase();
       const transcript = s.transcript?.toLowerCase() || '';
       return title.includes(q) || cat.includes(q) || transcript.includes(q);
     });
@@ -243,8 +248,8 @@ function renderSessionCards(sessions) {
     const grammarScore = feedback?.grammar_score ?? '--';
     const fluencyScore = feedback?.fluency_score ?? '--';
     const pronScore = feedback?.pronunciation_score ?? '--';
-    const topicTitle = session.daily_topics?.title || 'Daily Practice Session';
-    const category = session.daily_topics?.category || 'General';
+    const topicTitle = session.topic_title || session.daily_topics?.title || 'Daily Practice Session';
+    const category = session.topic_category || session.daily_topics?.category || 'General';
     const durationMin = Math.max(1, Math.round((session.duration_seconds || 60) / 60));
     const cardId = `session-card-${session.id || index}`;
 

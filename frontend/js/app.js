@@ -327,47 +327,58 @@ function skeletonLines(count = 3) {
 
 // ─── Auth State Listener ───
 try {
-  supabase.auth.onAuthStateChange((event, session) => {
-    AppState.session = session;
-    AppState.user = session?.user || null;
-    AppState.loading = false;
+    supabase.auth.onAuthStateChange(async (event, session) => {
+      AppState.session = session;
+      AppState.user = session?.user || null;
+      AppState.loading = false;
 
-    updateNav();
-    handleRoute();
-  });
-} catch (e) {
-  console.warn('onAuthStateChange listener error:', e);
-}
+      if (event === 'SIGNED_IN' && session?.user && typeof syncGuestSessions === 'function') {
+        try {
+          await syncGuestSessions(session.user);
+        } catch (syncErr) {
+          console.warn('Sync on auth state change failed:', syncErr);
+        }
+      }
 
-// ─── Init ───
-async function initApp() {
-  // 1. Render immediate visual state first so user sees the page instantly (0ms delay)
-  handleRoute();
-  updateNav();
-
-  // 2. Then check session in the background without blocking the UI
-  try {
-    const { data } = await supabase.auth.getSession();
-    if (data?.session) {
-      AppState.session = data.session;
-      AppState.user = data.session.user;
       updateNav();
       handleRoute();
-    }
-  } catch (err) {
-    console.warn('getSession check error:', err);
-  } finally {
-    AppState.loading = false;
+    });
+  } catch (e) {
+    console.warn('onAuthStateChange listener error:', e);
   }
-}
 
-// Listen for hash changes
-window.addEventListener('hashchange', handleRoute);
+  // ─── Init ───
+  async function initApp() {
+    // 1. Render immediate visual state first so user sees the page instantly (0ms delay)
+    handleRoute();
+    updateNav();
 
-// Start when DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initApp);
-} else {
-  initApp();
-}
+    // 2. Then check session in the background without blocking the UI
+    try {
+      const { data } = await supabase.auth.getSession();
+      if (data?.session) {
+        AppState.session = data.session;
+        AppState.user = data.session.user;
+        if (typeof syncGuestSessions === 'function') {
+          syncGuestSessions(data.session.user).catch(e => console.warn('Init sync error:', e));
+        }
+        updateNav();
+        handleRoute();
+      }
+    } catch (err) {
+      console.warn('getSession check error:', err);
+    } finally {
+      AppState.loading = false;
+    }
+  }
+
+  // Listen for hash changes
+  window.addEventListener('hashchange', handleRoute);
+
+  // Start when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+  } else {
+    initApp();
+  }
 
