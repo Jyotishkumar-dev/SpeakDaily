@@ -7,26 +7,42 @@ const router = express.Router();
 // POST /api/sessions — Create a new practice session
 router.post('/', requireAuth, async (req, res) => {
   try {
-    const { topic_id, transcript, duration_seconds, audio_url } = req.body;
+    const { topic_id, topic_title, transcript, duration_seconds, audio_url } = req.body;
 
-    if (!topic_id || !transcript) {
+    if (!transcript) {
       return res
         .status(400)
-        .json({ error: 'topic_id and transcript are required' });
+        .json({ error: 'transcript is required' });
     }
 
+    const isUuid = (val) => typeof val === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(val);
+
     const client = getScopedClient(req);
-    const { data: session, error } = await client
+    const sessionPayload = {
+      user_id: req.user.id,
+      topic_id: isUuid(topic_id) ? topic_id : null,
+      topic_title: topic_title || 'Daily Practice Session',
+      transcript,
+      duration_seconds: duration_seconds || 0,
+      audio_url: audio_url || null,
+    };
+
+    let { data: session, error } = await client
       .from('practice_sessions')
-      .insert({
-        user_id: req.user.id,
-        topic_id,
-        transcript,
-        duration_seconds: duration_seconds || 0,
-        audio_url: audio_url || null,
-      })
+      .insert(sessionPayload)
       .select()
       .single();
+
+    if (error && error.message && error.message.includes('topic_title')) {
+      delete sessionPayload.topic_title;
+      const retryRes = await client
+        .from('practice_sessions')
+        .insert(sessionPayload)
+        .select()
+        .single();
+      session = retryRes.data;
+      error = retryRes.error;
+    }
 
     if (error) {
       return res.status(400).json({ error: error.message });
