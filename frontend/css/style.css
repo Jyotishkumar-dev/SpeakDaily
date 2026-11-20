@@ -840,14 +840,34 @@ p { margin-bottom: 0.5em; }
 /* Stats Grid */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
   margin-bottom: 32px;
+}
+
+@media (max-width: 900px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .stat-card {
   text-align: center;
   padding: 24px 16px;
+  position: relative;
+  overflow: hidden;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .stat-card .stat-emoji {
@@ -869,16 +889,234 @@ p { margin-bottom: 0.5em; }
   margin-top: 2px;
 }
 
+.stat-card .stat-sub {
+  font-size: 11px;
+  color: var(--color-success);
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+/* Dashboard Topic Card Additions */
+.topic-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.topic-countdown-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(8px);
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.topic-prompts-preview {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  margin: 18px 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.topic-prompts-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 8px;
+  opacity: 0.95;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.topic-prompts-list {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13px;
+  line-height: 1.6;
+  opacity: 0.95;
+}
+
+.hero-actions-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.hero-actions-row .btn-hero-primary {
+  background: white;
+  color: var(--color-primary);
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+
+.hero-actions-row .btn-hero-primary:hover {
+  background: #f0f0ff;
+  transform: translateY(-2px);
+}
+
+.hero-actions-row .btn-hero-secondary {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  font-weight: 600;
+}
+
+.hero-actions-row .btn-hero-secondary:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Weekly Habit Tracker */
+.weekly-tracker-card {
+  margin-bottom: 32px;
+}
+
+.weekly-tracker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.weekly-tracker-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.weekly-day-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 4px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-dark-light);
+  transition: all var(--transition);
+}
+
+.weekly-day-pill.active {
+  background: rgba(0, 184, 148, 0.12);
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+
+.weekly-day-pill.today {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.2);
+}
+
+.weekly-day-pill .day-icon {
+  font-size: 16px;
+}
+
+/* Quick Modes Grid */
+.quick-modes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+@media (max-width: 768px) {
+  .quick-modes-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.quick-mode-card {
+  cursor: pointer;
+  padding: 20px;
+  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.quick-mode-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary);
+}
+
+.quick-mode-card .mode-icon {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.quick-mode-card h4 {
+  font-size: 15px;
+  margin-bottom: 6px;
+}
+
+.quick-mode-card p {
+  font-size: 13px;
+  color: var(--color-dark-light);
+  line-height: 1.45;
+  margin-bottom: 14px;
+}
+
+.quick-mode-card .mode-cta {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 /* Motivational quote */
 .quote-card {
   background: linear-gradient(135deg, rgba(108,99,255,0.06), rgba(255,101,132,0.06));
-  border: 1px solid rgba(108,99,255,0.08);
+  border: 1px solid rgba(108,99,255,0.12);
   border-radius: var(--radius-lg);
   padding: 20px 24px;
   margin-bottom: 32px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 16px;
+  position: relative;
+}
+
+.quote-refresh-btn {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-primary);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all var(--transition);
+}
+
+.quote-refresh-btn:hover {
+  background: rgba(108, 99, 255, 0.1);
+  transform: rotate(45deg);
 }
 
 .quote-card .emoji { font-size: 1.6rem; }

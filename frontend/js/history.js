@@ -6,32 +6,32 @@ let cachedSessions = [];
 let currentFilterRange = 'all'; // 'all', '7days', '30days'
 
 // ─── Fetch All Sessions ───
-async function fetchSessions(0 {
+async function fetchSessions() {
   if (!AppState.user) {
-  try {
-    const raw = localStorage.getItem('speakdaily_guest_sessions');
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      cachedSessions = parsed.map(g => ({
-        id: g.id,
-        created_at: g.created_at,
-        duration_seconds: g.duration_seconds,
-        transcript: g.transcript,
-        daily_topics: { title: g.topic_title, category: g.topic_category },
-        ai_feedback: g.feedback
-      }));
-      return cachedSessions;
+    try {
+      const raw = localStorage.getItem('speakdaily_guest_sessions');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        cachedSessions = parsed.map(g => ({
+          id: g.id,
+          created_at: g.created_at,
+          duration_seconds: g.duration_seconds,
+          transcript: g.transcript,
+          daily_topics: { title: g.topic_title, category: g.topic_category },
+          ai_feedback: g.feedback
+        }));
+        return cachedSessions;
+      }
+    } catch (e) {
+      console.warn('Guest history read error:', e);
     }
-  } catch (e) {
-    console.warn('Guest history read error:', e);
+    return [];
   }
-  return [];
-}
 
-try {
-  let { data, error } = await supabase
-    .from('practice_sessions')
-    .select(`
+  try {
+    let { data, error } = await supabase
+      .from('practice_sessions')
+      .select(`
         *,
         daily_topics (
           id,
@@ -50,24 +50,24 @@ try {
           encouraging_message
         )
       `)
-    .eq('user_id', AppState.user.id)
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    console.warn('History query with relation failed, falling back to simple select:', error);
-    const fallback = await supabase
-      .from('practice_sessions')
-      .select('*')
       .eq('user_id', AppState.user.id)
       .order('created_at', { ascending: false });
-    data = fallback.data || [];
+
+    if (error) {
+      console.warn('History query with relation failed, falling back to simple select:', error);
+      const fallback = await supabase
+        .from('practice_sessions')
+        .select('*')
+        .eq('user_id', AppState.user.id)
+        .order('created_at', { ascending: false });
+      data = fallback.data || [];
+    }
+    cachedSessions = data || [];
+    return cachedSessions;
+  } catch (err) {
+    console.error('fetchSessions error:', err);
+    return [];
   }
-  cachedSessions = data || [];
-  return cachedSessions;
-} catch (err) {
-  console.error('fetchSessions error:', err);
-  return [];
-}
 }
 
 // ─── Render History Page ───
