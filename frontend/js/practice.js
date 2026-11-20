@@ -91,6 +91,7 @@ const PRACTICE_TOPIC_POOL = [
     ]
   }
 ];
+window.PRACTICE_TOPIC_POOL = PRACTICE_TOPIC_POOL;
 
 window.shufflePracticeTopic = function () {
   const currentId = activeTopic?.id;
