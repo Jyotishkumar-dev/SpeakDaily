@@ -912,71 +912,95 @@ async function handleSubmitPractice() {
     // 2. Save session to Supabase if authenticated
     if (AppState.user) {
       try {
-        const isUuid = (val) => typeof val === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(val);
-        const sessionPayload = {
-          user_id: AppState.user.id,
-          topic_id: isUuid(topicId) ? topicId : null,
-          topic_title: activeTopic?.title || 'Daily Practice Session',
-          transcript: transcript,
-          duration_seconds: sessionDuration,
-          audio_url: null
-        };
+        if (AppState.isLocalMode || AppState.user.id.startsWith('local_')) {
+          const userSessions = JSON.parse(localStorage.getItem('speakdaily_user_sessions_' + AppState.user.id) || '[]');
+          const newLocalId = 'sess_' + Date.now();
+          userSessions.unshift({
+            id: newLocalId,
+            user_id: AppState.user.id,
+            topic_title: activeTopic?.title || 'Daily Practice Session',
+            topic_category: activeTopic?.category || 'General',
+            transcript: transcript,
+            duration_seconds: sessionDuration,
+            created_at: new Date().toISOString(),
+            ai_feedback: feedback
+          });
+          localStorage.setItem('speakdaily_user_sessions_' + AppState.user.id, JSON.stringify(userSessions.slice(0, 50)));
 
-        let { data: sessionData, error: sessError } = await supabase
-          .from('practice_sessions')
-          .insert(sessionPayload)
-          .select('id')
-          .single();
+          // Update local profile stats
+          const prof = JSON.parse(localStorage.getItem('speakdaily_profile_' + AppState.user.id) || '{}');
+          prof.total_sessions = (prof.total_sessions || 0) + 1;
+          prof.streak_count = (prof.streak_count || 0) + 1;
+          prof.updated_at = new Date().toISOString();
+          localStorage.setItem('speakdaily_profile_' + AppState.user.id, JSON.stringify(prof));
+          savedSessionId = newLocalId;
+        } else {
+          const isUuid = (val) => typeof val === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(val);
+          const sessionPayload = {
+            user_id: AppState.user.id,
+            topic_id: isUuid(topicId) ? topicId : null,
+            topic_title: activeTopic?.title || 'Daily Practice Session',
+            transcript: transcript,
+            duration_seconds: sessionDuration,
+            audio_url: null
+          };
 
-        // If topic_title is rejected by unmigrated DB, retry without topic_title
-        if (sessError && sessError.message && sessError.message.includes('topic_title')) {
-          delete sessionPayload.topic_title;
-          const retryRes = await supabase
+          let { data: sessionData, error: sessError } = await supabase
             .from('practice_sessions')
             .insert(sessionPayload)
             .select('id')
             .single();
-          sessionData = retryRes.data;
-          sessError = retryRes.error;
-        }
 
-        if (sessError) {
-          console.warn('Session insert error:', sessError);
-        } else if (sessionData) {
-          savedSessionId = sessionData.id;
+          // If topic_title is rejected by unmigrated DB, retry without topic_title
+          if (sessError && sessError.message && sessError.message.includes('topic_title')) {
+            delete sessionPayload.topic_title;
+            const retryRes = await supabase
+              .from('practice_sessions')
+              .insert(sessionPayload)
+              .select('id')
+              .single();
+            sessionData = retryRes.data;
+            sessError = retryRes.error;
+          }
 
-          // Save feedback to ai_feedback table
-          const { error: fbError } = await supabase
-            .from('ai_feedback')
-            .insert({
-              session_id: savedSessionId,
-              grammar_score: feedback.grammar_score,
-              fluency_score: feedback.fluency_score,
-              pronunciation_score: feedback.pronunciation_score,
-              overall_score: feedback.overall_score,
-              corrections: feedback.corrections,
-              suggestions: feedback.suggestions,
-              encouraging_message: feedback.encouraging_message
-            });
+          if (sessError) {
+            console.warn('Session insert error:', sessError);
+          } else if (sessionData) {
+            savedSessionId = sessionData.id;
 
-          if (fbError) console.warn('Feedback insert error:', fbError);
+            // Save feedback to ai_feedback table
+            const { error: fbError } = await supabase
+              .from('ai_feedback')
+              .insert({
+                session_id: savedSessionId,
+                grammar_score: feedback.grammar_score,
+                fluency_score: feedback.fluency_score,
+                pronunciation_score: feedback.pronunciation_score,
+                overall_score: feedback.overall_score,
+                corrections: feedback.corrections,
+                suggestions: feedback.suggestions,
+                encouraging_message: feedback.encouraging_message
+              });
 
-          // Update streak & total sessions in profiles
-          const { data: prof } = await supabase
-            .from('profiles')
-            .select('streak_count, total_sessions')
-            .eq('id', AppState.user.id)
-            .maybeSingle();
+            if (fbError) console.warn('Feedback insert error:', fbError);
 
-          if (prof) {
-            await supabase
+            // Update streak & total sessions in profiles
+            const { data: prof } = await supabase
               .from('profiles')
-              .update({
-                total_sessions: (prof.total_sessions || 0) + 1,
-                streak_count: (prof.streak_count || 0) + 1,
-                updated_at: new Date().toISOString()
-              })
-              .eq('id', AppState.user.id);
+              .select('streak_count, total_sessions')
+              .eq('id', AppState.user.id)
+              .maybeSingle();
+
+            if (prof) {
+              await supabase
+                .from('profiles')
+                .update({
+                  total_sessions: (prof.total_sessions || 0) + 1,
+                  streak_count: (prof.streak_count || 0) + 1,
+                  updated_at: new Date().toISOString()
+                })
+                .eq('id', AppState.user.id);
+            }
           }
         }
       } catch (dbErr) {

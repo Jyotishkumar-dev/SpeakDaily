@@ -97,6 +97,7 @@ const AppState = {
   session: null,
   currentPage: 'landing',
   loading: true,
+  isLocalMode: false,
 };
 
 // ─── DOM Refs ───
@@ -353,12 +354,32 @@ try {
     handleRoute();
     updateNav();
 
-    // 2. Then check session in the background without blocking the UI
+    // 2. First check for saved local offline session
+    try {
+      const rawLocalSession = localStorage.getItem('speakdaily_local_session');
+      if (rawLocalSession) {
+        const localSess = JSON.parse(rawLocalSession);
+        if (localSess && localSess.user) {
+          AppState.session = localSess;
+          AppState.user = localSess.user;
+          AppState.isLocalMode = true;
+          updateNav();
+          handleRoute();
+          AppState.loading = false;
+          return;
+        }
+      }
+    } catch (localErr) {
+      console.warn('Local session parse warning:', localErr);
+    }
+
+    // 3. Otherwise check Supabase session in the background
     try {
       const { data } = await supabase.auth.getSession();
       if (data?.session) {
         AppState.session = data.session;
         AppState.user = data.session.user;
+        AppState.isLocalMode = false;
         if (typeof syncGuestSessions === 'function') {
           syncGuestSessions(data.session.user).catch(e => console.warn('Init sync error:', e));
         }

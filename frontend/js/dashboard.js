@@ -102,6 +102,27 @@ async function fetchUserStats() {
     return { streak_count: 0, total_sessions: 0, avg_score: 0, total_minutes: 0 };
   }
 
+  // Local user mode
+  if (AppState.isLocalMode || AppState.user.id.startsWith('local_')) {
+    try {
+      const prof = JSON.parse(localStorage.getItem('speakdaily_profile_' + AppState.user.id) || '{}');
+      const sessions = JSON.parse(localStorage.getItem('speakdaily_user_sessions_' + AppState.user.id) || '[]');
+      const scores = sessions
+        .map(s => s.ai_feedback?.overall_score)
+        .filter(score => typeof score === 'number' && !isNaN(score));
+      const avg = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+      const totalSecs = sessions.reduce((sum, s) => sum + (s.duration_seconds || 45), 0);
+      return {
+        streak_count: prof.streak_count || (sessions.length > 0 ? 1 : 0),
+        total_sessions: Math.max(prof.total_sessions || 0, sessions.length),
+        avg_score: avg,
+        total_minutes: Math.max(1, Math.round(totalSecs / 60))
+      };
+    } catch (e) {
+      console.warn('Local stats read error:', e);
+    }
+  }
+
   try {
     // 1. Profile stats
     const { data: profile } = await supabase
@@ -184,6 +205,17 @@ async function fetchWeeklyActivity() {
     return weekDays;
   }
 
+  if (AppState.isLocalMode || AppState.user.id.startsWith('local_')) {
+    try {
+      const sessions = JSON.parse(localStorage.getItem('speakdaily_user_sessions_' + AppState.user.id) || '[]');
+      const datesWithSessions = new Set(sessions.map(s => s.created_at?.split('T')[0]));
+      weekDays.forEach(w => {
+        if (datesWithSessions.has(w.dateStr)) w.active = true;
+      });
+    } catch (e) { }
+    return weekDays;
+  }
+
   try {
     const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
     const { data: sessions } = await supabase
@@ -223,6 +255,22 @@ async function fetchRecentSessions() {
       }
     } catch (e) { }
     return [];
+  }
+
+  if (AppState.isLocalMode || AppState.user.id.startsWith('local_')) {
+    try {
+      const sessions = JSON.parse(localStorage.getItem('speakdaily_user_sessions_' + AppState.user.id) || '[]');
+      return sessions.slice(0, 5).map(s => ({
+        id: s.id,
+        duration_seconds: s.duration_seconds,
+        created_at: s.created_at,
+        topic_title: s.topic_title,
+        daily_topics: { title: s.topic_title, category: s.topic_category },
+        ai_feedback: s.ai_feedback
+      }));
+    } catch (e) {
+      return [];
+    }
   }
 
   try {

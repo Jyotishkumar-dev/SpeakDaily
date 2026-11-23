@@ -32,6 +32,25 @@ async function fetchSessions() {
     return [];
   }
 
+  if (AppState.isLocalMode || AppState.user.id.startsWith('local_')) {
+    try {
+      const localSessions = JSON.parse(localStorage.getItem('speakdaily_user_sessions_' + AppState.user.id) || '[]');
+      cachedSessions = localSessions.map(s => ({
+        id: s.id,
+        created_at: s.created_at,
+        duration_seconds: s.duration_seconds,
+        transcript: s.transcript,
+        topic_title: s.topic_title,
+        topic_category: s.topic_category,
+        daily_topics: { title: s.topic_title, category: s.topic_category },
+        ai_feedback: s.ai_feedback
+      }));
+      return cachedSessions;
+    } catch (e) {
+      return [];
+    }
+  }
+
   try {
     let { data, error } = await supabase
       .from('practice_sessions')
