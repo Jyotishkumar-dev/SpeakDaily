@@ -160,6 +160,10 @@ create policy "Users can insert their own sessions"
   on public.practice_sessions for insert
   with check (auth.uid() = user_id);
 
+create policy "Users can delete their own sessions"
+  on public.practice_sessions for delete
+  using (auth.uid() = user_id);
+
 -- ---- ai_feedback ---------------------------------------------
 alter table public.ai_feedback enable row level security;
 

@@ -99,4 +99,27 @@ router.get('/:id', requireAuth, async (req, res) => {
   }
 });
 
+// DELETE /api/sessions/:id — Delete a practice session
+router.delete('/:id', requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const client = getScopedClient(req);
+
+    const { error } = await client
+      .from('practice_sessions')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', req.user.id);
+
+    if (error) {
+      return res.status(400).json({ error: error.message });
+    }
+
+    return res.json({ message: 'Session deleted successfully' });
+  } catch (err) {
+    console.error('Delete session error:', err);
+    return res.status(500).json({ error: 'Failed to delete session' });
+  }
+});
+
 module.exports = router;
