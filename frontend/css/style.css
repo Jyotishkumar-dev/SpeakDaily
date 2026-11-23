@@ -758,6 +758,29 @@ p { margin-bottom: 0.5em; }
   line-height: 1.4;
 }
 
+.cloud-status-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(108, 99, 255, 0.07);
+  border: 1px solid rgba(108, 99, 255, 0.2);
+  border-radius: var(--radius-md);
+  padding: 9px 13px;
+  margin-bottom: 16px;
+  font-size: 12px;
+  color: var(--color-dark);
+  line-height: 1.4;
+}
+
+.cloud-status-banner .status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-success);
+  flex-shrink: 0;
+  box-shadow: 0 0 0 2px rgba(0, 184, 148, 0.2);
+}
+
 /* ---------- Dashboard ---------- */
 .dashboard-page {
   padding: 32px 0;
@@ -1967,27 +1990,117 @@ p { margin-bottom: 0.5em; }
   font-size: 1.1rem;
 }
 
-/* Streak calendar placeholder */
+/* Streak Calendar Heatmap */
+.heatmap-wrapper {
+  margin-top: 16px;
+}
+
+.heatmap-header-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-bottom: 8px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-dark-light);
+}
+
 .streak-calendar {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
-  margin-top: 16px;
+  gap: 6px;
 }
 
 .streak-day {
   aspect-ratio: 1;
-  border-radius: 4px;
-  background: #eee;
-  font-size: 0;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.05);
+  transition: all var(--transition);
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.streak-day.active {
-  background: var(--color-primary);
+.streak-day:hover {
+  transform: scale(1.12);
+  z-index: 2;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-.streak-day.partial {
-  background: rgba(108,99,255,0.3);
+.streak-day.lvl-0 {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.streak-day.lvl-1 {
+  background: rgba(0, 184, 148, 0.25);
+  border: 1px solid rgba(0, 184, 148, 0.4);
+}
+
+.streak-day.lvl-2 {
+  background: rgba(0, 184, 148, 0.65);
+}
+
+.streak-day.lvl-3 {
+  background: #00B894;
+  box-shadow: 0 2px 8px rgba(0, 184, 148, 0.35);
+}
+
+.streak-day.is-today {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.heatmap-footer-legend {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 14px;
+  font-size: 11px;
+  color: var(--color-dark-light);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.heatmap-legend-scale {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.legend-box {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+/* Profile Badges & Learning Preferences */
+.profile-badges-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.profile-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  background: rgba(108, 99, 255, 0.1);
+  color: var(--color-primary);
+}
+
+.danger-zone-card {
+  border: 1px solid rgba(225, 112, 85, 0.3);
+  background: rgba(225, 112, 85, 0.03);
+  margin-top: 24px;
+  padding: 24px;
 }
 
 /* ---------- Footer ---------- */
